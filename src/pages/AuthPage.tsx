@@ -1,0 +1,87 @@
+import { useState, type FormEvent } from 'react'
+import { useAppDispatch, useAppSelector } from '../app/hooks'
+import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
+import { beginOnboarding, signIn } from '../features/auth/authSlice'
+import { selectAuthMode } from '../features/auth/authSelectors'
+
+interface AuthPageProps {
+  onBack: () => void
+  onSwitchMode: (mode: 'signin' | 'signup') => void
+}
+
+export function AuthPage({ onBack, onSwitchMode }: AuthPageProps) {
+  const dispatch = useAppDispatch()
+  const mode = useAppSelector(selectAuthMode)
+  const [email, setEmail] = useState('emma.demo@wellbe.local')
+  const [password, setPassword] = useState('demo1234')
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (mode === 'signup') {
+      dispatch(beginOnboarding(email))
+      return
+    }
+
+    dispatch(signIn(email))
+  }
+
+  return (
+    <main className="auth-page">
+      <Card className="auth-card">
+        <div className="auth-card__visual">
+          <span className="brand-mark">W</span>
+          <h1>{mode === 'signup' ? 'Creer votre espace Wellbe' : 'Retour sur Wellbe'}</h1>
+          <p>
+            Cette version portfolio simule la connexion et la recuperation du plan
+            depuis un backend personnel.
+          </p>
+        </div>
+        <form className="auth-card__form" onSubmit={handleSubmit}>
+          <div className="section-heading">
+            <span>{mode === 'signup' ? 'Inscription' : 'Connexion'}</span>
+            <h2>
+              {mode === 'signup'
+                ? 'On commence avec le minimum'
+                : 'Connectez-vous pour retrouver le plan'}
+            </h2>
+          </div>
+          <label>
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </label>
+          <label>
+            Mot de passe
+            <input
+              type="password"
+              minLength={4}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </label>
+          <Button type="submit">
+            {mode === 'signup' ? 'Continuer' : 'Se connecter'}
+          </Button>
+          <div className="auth-links">
+            <button type="button" onClick={onBack}>
+              Retour
+            </button>
+            <button
+              type="button"
+              onClick={() => onSwitchMode(mode === 'signup' ? 'signin' : 'signup')}
+            >
+              {mode === 'signup' ? 'J ai deja un compte' : 'Creer un compte'}
+            </button>
+          </div>
+        </form>
+      </Card>
+    </main>
+  )
+}
