@@ -43,7 +43,7 @@ export function DashboardPage({ onNavigate, onOpenMeal }: DashboardPageProps) {
       <section className="dashboard-hero">
         <div>
           <span className="header-kicker">{formatDisplayDate(dailyPlan.date)}</span>
-          <h2>Journee bien-etre lisible en un coup d'oeil</h2>
+          <h2>Tableau de bord quotidien</h2>
           <p>
             Suivi fictif des repas, macros, activites et preferences pour une demo
             portfolio autonome.

@@ -31,16 +31,13 @@ function App() {
   const authStatus = useAppSelector(selectAuthStatus)
   const hasNutritionPlan = useAppSelector(selectHasNutritionPlan)
   const onboardingProfile = useAppSelector(selectOnboardingProfile)
-  const [activePage, setActivePage] = useState<AppPage>('dashboard')
+  const [activePage, setActivePage] = useState<AppPage | null>(null)
   const [selectedMealId, setSelectedMealId] = useState<string | null>(null)
   const [publicPage, setPublicPage] = useState<'landing' | 'auth'>('landing')
-
-  const displayedPage =
-    authStatus === 'authenticated' &&
-    !hasNutritionPlan &&
-    activePage === 'dashboard'
+  const displayedPage: AppPage =
+    authStatus === 'authenticated' && !hasNutritionPlan && activePage === null
       ? 'generate-plan'
-      : activePage
+      : activePage ?? 'dashboard'
 
   useEffect(() => {
     if (authStatus === 'authenticated' && onboardingProfile) {

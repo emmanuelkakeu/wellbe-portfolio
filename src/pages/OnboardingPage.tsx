@@ -8,42 +8,100 @@ import type { OnboardingProfile, User } from '../types/domain'
 
 const steps = ['Identite', 'Objectif', 'Profil', 'Preferences'] as const
 
+type OnboardingForm = Omit<
+  OnboardingProfile,
+  'goal' | 'activityLevel' | 'gender' | 'heightCm' | 'currentWeightKg' | 'targetWeightKg'
+> & {
+  goal: User['goal'] | ''
+  activityLevel: OnboardingProfile['activityLevel'] | ''
+  gender: OnboardingProfile['gender'] | ''
+  heightCm: string
+  currentWeightKg: string
+  targetWeightKg: string
+}
+
 export function OnboardingPage() {
   const dispatch = useAppDispatch()
   const email = useAppSelector((state) => state.auth.email)
   const [step, setStep] = useState(0)
-  const [profile, setProfile] = useState<OnboardingProfile>({
-    firstName: 'Emma',
-    lastName: 'Martin',
+  const [profile, setProfile] = useState<OnboardingForm>({
+    firstName: '',
+    lastName: '',
     email,
-    goal: 'healthy_lifestyle',
-    activityLevel: 'moderate',
-    gender: 'woman',
-    birthDate: '1998-05-12',
-    heightCm: 168,
-    currentWeightKg: 64,
-    targetWeightKg: 61,
-    preferredMeals: ['Poulet riz legumes', 'Saumon patate douce'],
-    avoidIngredients: ['Arachides'],
+    goal: '',
+    activityLevel: '',
+    gender: '',
+    birthDate: '',
+    heightCm: '',
+    currentWeightKg: '',
+    targetWeightKg: '',
+    preferredMeals: [],
+    avoidIngredients: [],
   })
 
-  function update<K extends keyof OnboardingProfile>(
+  function update<K extends keyof OnboardingForm>(
     key: K,
-    value: OnboardingProfile[K],
+    value: OnboardingForm[K],
   ) {
     setProfile((current) => ({ ...current, [key]: value }))
   }
 
+  function isStepValid() {
+    if (step === 0) {
+      return Boolean(profile.firstName.trim() && profile.lastName.trim())
+    }
+
+    if (step === 1) {
+      return Boolean(profile.goal)
+    }
+
+    if (step === 2) {
+      return Boolean(
+        profile.gender &&
+          profile.birthDate &&
+          profile.heightCm &&
+          profile.currentWeightKg &&
+          profile.targetWeightKg &&
+          profile.activityLevel,
+      )
+    }
+
+    return true
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!isStepValid()) {
+      return
+    }
 
     if (step < steps.length - 1) {
       setStep((current) => current + 1)
       return
     }
 
-    dispatch(completeOnboarding(profile))
-    dispatch(applyOnboardingProfile(profile))
+    if (!profile.goal || !profile.activityLevel || !profile.gender) {
+      return
+    }
+
+    const completedProfile: OnboardingProfile = {
+      firstName: profile.firstName.trim(),
+      lastName: profile.lastName.trim(),
+      email,
+      goal: profile.goal,
+      activityLevel: profile.activityLevel,
+      gender: profile.gender,
+      birthDate: profile.birthDate,
+      heightCm: Number(profile.heightCm),
+      currentWeightKg: Number(profile.currentWeightKg),
+      targetWeightKg: Number(profile.targetWeightKg),
+      preferredMeals: profile.preferredMeals,
+      avoidIngredients: profile.avoidIngredients,
+    }
+
+    dispatch(completeOnboarding(completedProfile))
+    dispatch(applyOnboardingProfile(completedProfile))
   }
 
   return (
@@ -108,10 +166,12 @@ export function OnboardingPage() {
                   onChange={(event) =>
                     update(
                       'gender',
-                      event.target.value as OnboardingProfile['gender'],
+                      event.target.value as OnboardingForm['gender'],
                     )
                   }
+                  required
                 >
+                  <option value="" disabled>Choisir</option>
                   <option value="woman">Femme</option>
                   <option value="man">Homme</option>
                   <option value="other">Autre</option>
@@ -123,6 +183,7 @@ export function OnboardingPage() {
                   type="date"
                   value={profile.birthDate}
                   onChange={(event) => update('birthDate', event.target.value)}
+                  required
                 />
               </label>
               <label>
@@ -132,7 +193,8 @@ export function OnboardingPage() {
                   min={120}
                   max={230}
                   value={profile.heightCm}
-                  onChange={(event) => update('heightCm', Number(event.target.value))}
+                  onChange={(event) => update('heightCm', event.target.value)}
+                  required
                 />
               </label>
               <label>
@@ -143,8 +205,9 @@ export function OnboardingPage() {
                   max={220}
                   value={profile.currentWeightKg}
                   onChange={(event) =>
-                    update('currentWeightKg', Number(event.target.value))
+                    update('currentWeightKg', event.target.value)
                   }
+                  required
                 />
               </label>
               <label>
@@ -155,8 +218,9 @@ export function OnboardingPage() {
                   max={220}
                   value={profile.targetWeightKg}
                   onChange={(event) =>
-                    update('targetWeightKg', Number(event.target.value))
+                    update('targetWeightKg', event.target.value)
                   }
+                  required
                 />
               </label>
               <label>
@@ -166,10 +230,12 @@ export function OnboardingPage() {
                   onChange={(event) =>
                     update(
                       'activityLevel',
-                      event.target.value as OnboardingProfile['activityLevel'],
+                      event.target.value as OnboardingForm['activityLevel'],
                     )
                   }
+                  required
                 >
+                  <option value="" disabled>Choisir</option>
                   <option value="low">Sedentaire</option>
                   <option value="moderate">Modere</option>
                   <option value="high">Actif</option>
@@ -221,7 +287,7 @@ export function OnboardingPage() {
           >
             Retour
           </Button>
-          <Button type="submit">
+          <Button type="submit" disabled={!isStepValid()}>
             {step === steps.length - 1 ? 'Creer mon espace' : 'Suivant'}
           </Button>
         </div>

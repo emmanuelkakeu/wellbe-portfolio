@@ -118,7 +118,7 @@ export function PlanGeneratorPage({ onPlanReady }: PlanGeneratorPageProps) {
       <section className="generator-hero">
         <div>
           <span className="header-kicker">Simulation IA portfolio</span>
-          <h2>Generer un plan depuis le contexte complet de la journee</h2>
+          <h2>Generer un plan alimentaire qui s'adapte a vos objectifs de bien-être</h2>
           <p>
             Le moteur fictif combine objectif de poids, niveau d'activite,
             preferences, aliments a eviter, repas souhaites et depense sportive.

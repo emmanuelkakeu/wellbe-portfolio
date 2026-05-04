@@ -13,18 +13,18 @@ interface AuthPageProps {
 export function AuthPage({ onBack, onSwitchMode }: AuthPageProps) {
   const dispatch = useAppDispatch()
   const mode = useAppSelector(selectAuthMode)
-  const [email, setEmail] = useState('emma.demo@wellbe.local')
-  const [password, setPassword] = useState('demo1234')
+  const [form, setForm] = useState({ mode, email: '', password: '' })
+  const currentForm = form.mode === mode ? form : { mode, email: '', password: '' }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (mode === 'signup') {
-      dispatch(beginOnboarding(email))
+      dispatch(beginOnboarding(currentForm.email))
       return
     }
 
-    dispatch(signIn(email))
+    dispatch(signIn(currentForm.email))
   }
 
   return (
@@ -51,8 +51,14 @@ export function AuthPage({ onBack, onSwitchMode }: AuthPageProps) {
             Email
             <input
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={currentForm.email}
+              onChange={(event) =>
+                setForm((previous) => ({
+                  ...previous,
+                  mode,
+                  email: event.target.value,
+                }))
+              }
               required
             />
           </label>
@@ -61,8 +67,14 @@ export function AuthPage({ onBack, onSwitchMode }: AuthPageProps) {
             <input
               type="password"
               minLength={4}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              value={currentForm.password}
+              onChange={(event) =>
+                setForm((previous) => ({
+                  ...previous,
+                  mode,
+                  password: event.target.value,
+                }))
+              }
               required
             />
           </label>
