@@ -286,6 +286,16 @@
   border-radius: 8px;
 }
 
+.auth-error {
+  padding: 12px 14px;
+  color: #994242;
+  font-weight: 700;
+  line-height: 1.45;
+  background: #ffe7e7;
+  border: 1px solid #f3b8b8;
+  border-radius: 8px;
+}
+
 .form-grid textarea {
   min-height: 110px;
   resize: vertical;
@@ -332,6 +342,75 @@
 .onboarding-card h1 {
   color: #17231e;
   font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.preference-builder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.preference-builder {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 16px;
+  background: #f6faf8;
+  border: 1px solid #dce8e2;
+  border-radius: 8px;
+}
+
+.preference-builder .section-heading {
+  margin-bottom: 0;
+}
+
+.preference-builder__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.preference-builder__form input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  color: #17231e;
+  background: #ffffff;
+  border: 1px solid #cbd9d2;
+  border-radius: 8px;
+}
+
+.preference-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 34px;
+}
+
+.preference-chip-list button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 11px;
+  color: #126047;
+  font-weight: 700;
+  background: #e8f5ee;
+  border: 1px solid #bee3d0;
+  border-radius: 999px;
+}
+
+.preference-chip-list span {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  color: #ffffff;
+  font-size: 0.78rem;
+  line-height: 1;
+  background: #178c5b;
+  border-radius: 999px;
 }
 
 .choice-grid {
@@ -1063,6 +1142,7 @@
   .two-column,
   .public-hero,
   .auth-card,
+  .preference-builder-grid,
   .nutrition-summary,
   .meal-card,
   .form-grid,
@@ -1107,6 +1187,10 @@
 
   .auth-card__visual {
     min-height: 300px;
+  }
+
+  .preference-builder__form {
+    grid-template-columns: 1fr;
   }
 
   .button {

@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { beginOnboarding, signIn } from '../features/auth/authSlice'
-import { selectAuthMode } from '../features/auth/authSelectors'
+import { selectAuthError, selectAuthMode } from '../features/auth/authSelectors'
 
 interface AuthPageProps {
   onBack: () => void
@@ -13,18 +13,23 @@ interface AuthPageProps {
 export function AuthPage({ onBack, onSwitchMode }: AuthPageProps) {
   const dispatch = useAppDispatch()
   const mode = useAppSelector(selectAuthMode)
+  const authError = useAppSelector(selectAuthError)
   const [form, setForm] = useState({ mode, email: '', password: '' })
   const currentForm = form.mode === mode ? form : { mode, email: '', password: '' }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const credentials = {
+      email: currentForm.email,
+      password: currentForm.password,
+    }
 
     if (mode === 'signup') {
-      dispatch(beginOnboarding(currentForm.email))
+      dispatch(beginOnboarding(credentials))
       return
     }
 
-    dispatch(signIn(currentForm.email))
+    dispatch(signIn(credentials))
   }
 
   return (
@@ -47,6 +52,11 @@ export function AuthPage({ onBack, onSwitchMode }: AuthPageProps) {
                 : 'Connectez-vous pour retrouver le plan'}
             </h2>
           </div>
+          {authError ? (
+            <p className="auth-error" role="alert">
+              {authError}
+            </p>
+          ) : null}
           <label>
             Email
             <input

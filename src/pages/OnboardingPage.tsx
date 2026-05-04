@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
@@ -24,6 +24,8 @@ export function OnboardingPage() {
   const dispatch = useAppDispatch()
   const email = useAppSelector((state) => state.auth.email)
   const [step, setStep] = useState(0)
+  const [favoriteMealInput, setFavoriteMealInput] = useState('')
+  const [avoidIngredientInput, setAvoidIngredientInput] = useState('')
   const [profile, setProfile] = useState<OnboardingForm>({
     firstName: '',
     lastName: '',
@@ -44,6 +46,54 @@ export function OnboardingPage() {
     value: OnboardingForm[K],
   ) {
     setProfile((current) => ({ ...current, [key]: value }))
+  }
+
+  function addPreference(
+    key: 'preferredMeals' | 'avoidIngredients',
+    value: string,
+    onReset: () => void,
+  ) {
+    const trimmedValue = value.trim()
+
+    if (!trimmedValue) {
+      return
+    }
+
+    setProfile((current) => {
+      if (current[key].some((item) => item.toLowerCase() === trimmedValue.toLowerCase())) {
+        return current
+      }
+
+      return {
+        ...current,
+        [key]: [...current[key], trimmedValue],
+      }
+    })
+    onReset()
+  }
+
+  function handlePreferenceEnter(
+    event: KeyboardEvent<HTMLInputElement>,
+    key: 'preferredMeals' | 'avoidIngredients',
+    value: string,
+    onReset: () => void,
+  ) {
+    if (event.key !== 'Enter') {
+      return
+    }
+
+    event.preventDefault()
+    addPreference(key, value, onReset)
+  }
+
+  function removePreference(
+    key: 'preferredMeals' | 'avoidIngredients',
+    value: string,
+  ) {
+    setProfile((current) => ({
+      ...current,
+      [key]: current[key].filter((item) => item !== value),
+    }))
   }
 
   function isStepValid() {
@@ -245,37 +295,109 @@ export function OnboardingPage() {
           ) : null}
 
           {step === 3 ? (
-            <div className="form-grid">
-              <label>
-                Repas preferes
-                <textarea
-                  value={profile.preferredMeals.join(', ')}
-                  onChange={(event) =>
-                    update(
-                      'preferredMeals',
-                      event.target.value
-                        .split(',')
-                        .map((item) => item.trim())
-                        .filter(Boolean),
-                    )
-                  }
-                />
-              </label>
-              <label>
-                Allergies ou aliments a eviter
-                <textarea
-                  value={profile.avoidIngredients.join(', ')}
-                  onChange={(event) =>
-                    update(
-                      'avoidIngredients',
-                      event.target.value
-                        .split(',')
-                        .map((item) => item.trim())
-                        .filter(Boolean),
-                    )
-                  }
-                />
-              </label>
+            <div className="preference-builder-grid">
+              <div className="preference-builder">
+                <div className="section-heading">
+                  <span>Repas souhaites</span>
+                  <h2>Ajoutez vos plats preferes</h2>
+                </div>
+                <div className="preference-builder__form">
+                  <input
+                    value={favoriteMealInput}
+                    onChange={(event) => setFavoriteMealInput(event.target.value)}
+                    onKeyDown={(event) =>
+                      handlePreferenceEnter(
+                        event,
+                        'preferredMeals',
+                        favoriteMealInput,
+                        () => setFavoriteMealInput(''),
+                      )
+                    }
+                    placeholder="Ex: poulet riz legumes"
+                  />
+                  <Button
+                    type="button"
+                    disabled={!favoriteMealInput.trim()}
+                    onClick={() =>
+                      addPreference(
+                        'preferredMeals',
+                        favoriteMealInput,
+                        () => setFavoriteMealInput(''),
+                      )
+                    }
+                  >
+                    Ajouter
+                  </Button>
+                </div>
+                <div className="preference-chip-list">
+                  {profile.preferredMeals.length > 0 ? (
+                    profile.preferredMeals.map((meal) => (
+                      <button
+                        key={meal}
+                        type="button"
+                        onClick={() => removePreference('preferredMeals', meal)}
+                      >
+                        {meal}
+                        <span aria-hidden="true">x</span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="muted">Aucun repas ajoute.</p>
+                  )}
+                </div>
+              </div>
+              <div className="preference-builder">
+                <div className="section-heading">
+                  <span>Restrictions</span>
+                  <h2>Ajoutez les aliments a eviter</h2>
+                </div>
+                <div className="preference-builder__form">
+                  <input
+                    value={avoidIngredientInput}
+                    onChange={(event) => setAvoidIngredientInput(event.target.value)}
+                    onKeyDown={(event) =>
+                      handlePreferenceEnter(
+                        event,
+                        'avoidIngredients',
+                        avoidIngredientInput,
+                        () => setAvoidIngredientInput(''),
+                      )
+                    }
+                    placeholder="Ex: arachides"
+                  />
+                  <Button
+                    type="button"
+                    disabled={!avoidIngredientInput.trim()}
+                    onClick={() =>
+                      addPreference(
+                        'avoidIngredients',
+                        avoidIngredientInput,
+                        () => setAvoidIngredientInput(''),
+                      )
+                    }
+                  >
+                    Ajouter
+                  </Button>
+                </div>
+                <div className="preference-chip-list">
+                  {profile.avoidIngredients.length > 0 ? (
+                    profile.avoidIngredients.map((ingredient) => (
+                      <button
+                        key={ingredient}
+                        type="button"
+                        onClick={() =>
+                          removePreference('avoidIngredients', ingredient)
+                        }
+                      >
+                        {ingredient}
+                        <span aria-hidden="true">x</span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="muted">Aucun aliment exclu.</p>
+                  )}
+                </div>
+              </div>
             </div>
           ) : null}
         </Card>
