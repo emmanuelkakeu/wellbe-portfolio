@@ -32,7 +32,7 @@ export const mockHistory: HistoryEntry[] = [
   {
     date: '2026-04-29',
     calories: 2160,
-    mealsCompleted: 4,
+    mealsCompleted: 5,
     activitiesCompleted: 2,
     score: 94,
   },
